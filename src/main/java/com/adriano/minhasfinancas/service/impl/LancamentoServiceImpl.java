@@ -3,6 +3,7 @@ package com.adriano.minhasfinancas.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.hibernate.cfg.annotations.Nullability;
 import org.springframework.data.domain.Example;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.adriano.minhasfinancas.exception.RegraNegocioException;
 import com.adriano.minhasfinancas.model.entity.Lancamento;
 import com.adriano.minhasfinancas.model.enums.StatusLancamento;
+import com.adriano.minhasfinancas.model.enums.TipoLancamento;
 import com.adriano.minhasfinancas.model.repository.LancamentoRepository;
 import com.adriano.minhasfinancas.service.LancamentoService;
 
@@ -28,7 +30,7 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	@Transactional
 	public Lancamento salvar(Lancamento lancamento) {
-		// TODO Auto-generated method stub
+		validar(lancamento);
 		return repository.save(lancamento);
 	}
 
@@ -36,6 +38,8 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Transactional
 	public Lancamento atualizar(Lancamento lancamento) {
 		Objects.requireNonNull(lancamento.getId());
+		validar(lancamento);
+		lancamento.setStatus(StatusLancamento.PENDENTE);
 		return repository.save(lancamento);
 	}
 
@@ -86,5 +90,27 @@ public class LancamentoServiceImpl implements LancamentoService {
 		}
 		
 	}
+	@Override
+	public Optional<Lancamento> obterPorId(Long id) {
+		// TODO Auto-generated method stub
+		return repository.findById(id);
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal obterSaldoPorUsuario(Long id) {
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+		
+		if(receitas == null) {
+			receitas = BigDecimal.ZERO;
+		}
+		if(despesas == null) {
+			despesas = BigDecimal.ZERO;
+		}
+		return receitas.subtract(despesas);
+		
+	}
+	
+	
 
 }
