@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import com.adriano.minhasfinancas.dto.AtualizaStatusDTO;
-import com.adriano.minhasfinancas.dto.LancamentoDTO;
 import com.adriano.minhasfinancas.exception.RegraNegocioException;
 import com.adriano.minhasfinancas.model.entity.Lancamento;
+import com.adriano.minhasfinancas.model.entity.LancamentoDTO;
 import com.adriano.minhasfinancas.model.entity.Usuario;
 import com.adriano.minhasfinancas.model.enums.StatusLancamento;
 import com.adriano.minhasfinancas.model.enums.TipoLancamento;
@@ -36,7 +36,6 @@ public class LancamentoResource {
 	private final LancamentoService service;
 	private final UsuarioService usuarioService;
 
-	
 
 	@GetMapping
 	public ResponseEntity buscar(
@@ -61,6 +60,12 @@ public class LancamentoResource {
 		}
 		List<Lancamento> lancamentos = service.buscar(lancamentoFiltro);
 		return ResponseEntity.ok(lancamentos);
+	}
+	
+	@GetMapping("{id}")
+	public ResponseEntity obterLancamento(@PathVariable ("id") Long id) {
+		return service.obterPorId(id)
+					  .map(lancamento -> new ResponseEntity(lancamento,HttpStatus.OK))
 	}
 	@PostMapping
 	public ResponseEntity salvar(@RequestBody LancamentoDTO dto) {
@@ -116,6 +121,19 @@ public class LancamentoResource {
 
 
 		
+	}
+	
+	private LancamentoDTO converter(Lancamento lancamento) {
+		return LancamentoDTO.builder()
+				.id(lancamento.getId())
+				.descricao(lancamento.getDescricao())
+				.valor(lancamento.getValor())
+				.mes(lancamento.getMes())
+				.ano(lancamento.getAno())
+				.status(lancamento.getStatus().name())
+				.tipo(lancamento.getTipo().name())
+				.usuario(lancamento.getUsuario().getId())
+				.build();
 	}
 	private Lancamento converter(LancamentoDTO dto) {
 		Lancamento lancamento = new Lancamento();

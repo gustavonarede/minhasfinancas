@@ -1,14 +1,22 @@
-package com.adriano.minhasfinancas.dto;
+package com.adriano.minhasfinancas.model.entity;
 
 import java.math.BigDecimal;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+
+
+@AllArgsConstructor
 public class LancamentoDTO {
 
+	public LancamentoDTO() {}
+	
 	private Long id;
 	private String descricao;
 	private Integer mes;
