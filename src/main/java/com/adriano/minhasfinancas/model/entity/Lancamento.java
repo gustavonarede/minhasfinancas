@@ -2,6 +2,7 @@ package com.adriano.minhasfinancas.model.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -37,6 +38,7 @@ public class Lancamento {
 
 	@Id
 	@GeneratedValue( strategy = GenerationType.IDENTITY)
+	
 	@Column(name = "id")
 	private Long id;
 	
@@ -139,21 +141,10 @@ public class Lancamento {
 	public void setStatus(StatusLancamento status) {
 		this.status = status;
 	}
-
-	@Override
+	
+@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((ano == null) ? 0 : ano.hashCode());
-		result = prime * result + ((dataCadastro == null) ? 0 : dataCadastro.hashCode());
-		result = prime * result + ((descricao == null) ? 0 : descricao.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((mes == null) ? 0 : mes.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((tipo == null) ? 0 : tipo.hashCode());
-		result = prime * result + ((usuario == null) ? 0 : usuario.hashCode());
-		result = prime * result + ((valor == null) ? 0 : valor.hashCode());
-		return result;
+		return Objects.hash(ano, dataCadastro, descricao, id, mes, status, tipo, usuario, valor);
 	}
 
 	@Override
@@ -165,46 +156,10 @@ public class Lancamento {
 		if (getClass() != obj.getClass())
 			return false;
 		Lancamento other = (Lancamento) obj;
-		if (ano == null) {
-			if (other.ano != null)
-				return false;
-		} else if (!ano.equals(other.ano))
-			return false;
-		if (dataCadastro == null) {
-			if (other.dataCadastro != null)
-				return false;
-		} else if (!dataCadastro.equals(other.dataCadastro))
-			return false;
-		if (descricao == null) {
-			if (other.descricao != null)
-				return false;
-		} else if (!descricao.equals(other.descricao))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (mes == null) {
-			if (other.mes != null)
-				return false;
-		} else if (!mes.equals(other.mes))
-			return false;
-		if (status != other.status)
-			return false;
-		if (tipo != other.tipo)
-			return false;
-		if (usuario == null) {
-			if (other.usuario != null)
-				return false;
-		} else if (!usuario.equals(other.usuario))
-			return false;
-		if (valor == null) {
-			if (other.valor != null)
-				return false;
-		} else if (!valor.equals(other.valor))
-			return false;
-		return true;
+		return Objects.equals(ano, other.ano) && Objects.equals(dataCadastro, other.dataCadastro)
+				&& Objects.equals(descricao, other.descricao) && id == other.id && Objects.equals(mes, other.mes)
+				&& status == other.status && tipo == other.tipo && Objects.equals(usuario, other.usuario)
+				&& Objects.equals(valor, other.valor);
 	}
 
 	@Override

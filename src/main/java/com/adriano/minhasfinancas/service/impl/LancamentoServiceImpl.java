@@ -31,6 +31,7 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Transactional
 	public Lancamento salvar(Lancamento lancamento) {
 		validar(lancamento);
+		lancamento.setStatus(StatusLancamento.PENDENTE);
 		return repository.save(lancamento);
 	}
 
@@ -39,11 +40,12 @@ public class LancamentoServiceImpl implements LancamentoService {
 	public Lancamento atualizar(Lancamento lancamento) {
 		Objects.requireNonNull(lancamento.getId());
 		validar(lancamento);
-		lancamento.setStatus(StatusLancamento.PENDENTE);
+		//lancamento.setStatus(StatusLancamento.PENDENTE);
 		return repository.save(lancamento);
 	}
 
 	@Override
+	@Transactional
 	public void deletar(Lancamento lancamento) {
 		Objects.requireNonNull(lancamento.getId());
 		repository.delete(lancamento);
@@ -53,7 +55,8 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<Lancamento> buscar(Lancamento lancamentoFiltro) {
-		Example  example = Example.of(lancamentoFiltro, ExampleMatcher.matching()
+		Example  example = Example.of(lancamentoFiltro,
+				ExampleMatcher.matching()
 				.withIgnoreCase()
 				.withStringMatcher(StringMatcher.CONTAINING));
 		
@@ -92,14 +95,15 @@ public class LancamentoServiceImpl implements LancamentoService {
 	}
 	@Override
 	public Optional<Lancamento> obterPorId(Long id) {
-		// TODO Auto-generated method stub
+		
 		return repository.findById(id);
 	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public BigDecimal obterSaldoPorUsuario(Long id) {
-		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
-		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA.name());
+		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA.name());
 		
 		if(receitas == null) {
 			receitas = BigDecimal.ZERO;

@@ -26,19 +26,28 @@ import com.adriano.minhasfinancas.model.enums.TipoLancamento;
 import com.adriano.minhasfinancas.service.LancamentoService;
 import com.adriano.minhasfinancas.service.UsuarioService;
 
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/lancamentos")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
+
 public class LancamentoResource {
 	
-	private final LancamentoService service;
-	private final UsuarioService usuarioService;
+	private final  LancamentoService service;
+	
+	private  final UsuarioService usuarioService;
+
+	
+
+
+
 
 
 	@GetMapping
 	public ResponseEntity buscar(
+			
 			
 			
 			@RequestParam(value ="descricao", required = false) String descricao,
@@ -62,11 +71,14 @@ public class LancamentoResource {
 		return ResponseEntity.ok(lancamentos);
 	}
 	
-	@GetMapping("{id}")
-	public ResponseEntity obterLancamento(@PathVariable ("id") Long id) {
+	@GetMapping("{id}/saldo")
+	
+	public ResponseEntity obterSaldo(@PathVariable ("id") Long id) {
+		System.out.println("Iniciando execução do método. ID da requisição: " + id.toString());
 		return service.obterPorId(id)
-					  .map(lancamento -> new ResponseEntity(lancamento,HttpStatus.OK))
+				.map(lancamento -> new ResponseEntity(lancamento,HttpStatus.OK))
 	}
+	
 	@PostMapping
 	public ResponseEntity salvar(@RequestBody LancamentoDTO dto) {
 		try {
@@ -146,7 +158,7 @@ public class LancamentoResource {
 		
 		Usuario usuario = usuarioService
 				.obterPorId(dto.getUsuario())
-				.orElseThrow( () -> new RegraNegocioException("Usuario não encontrado" ));
+				.orElseThrow( () -> new RegraNegocioException("Usuario não encontrado para id informado." ));
 		
 		lancamento.setUsuario(usuario);
 		if(dto.getTipo() != null) {
@@ -156,6 +168,12 @@ public class LancamentoResource {
 		lancamento.setStatus(StatusLancamento.valueOf(dto.getStatus()));
 		}
 		return lancamento;
+	}
+
+	public LancamentoResource(LancamentoService service, UsuarioService usuarioService) {
+		super();
+		this.service = service;
+		this.usuarioService = usuarioService;
 	}
 
 }
