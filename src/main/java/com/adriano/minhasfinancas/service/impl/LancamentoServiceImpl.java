@@ -6,12 +6,15 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.hibernate.cfg.annotations.Nullability;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adriano.minhasfinancas.api.resource.LancamentoResource;
 import com.adriano.minhasfinancas.exception.RegraNegocioException;
 import com.adriano.minhasfinancas.model.entity.Lancamento;
 import com.adriano.minhasfinancas.model.enums.StatusLancamento;
@@ -22,6 +25,8 @@ import com.adriano.minhasfinancas.service.LancamentoService;
 @Service
 public class LancamentoServiceImpl implements LancamentoService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(LancamentoServiceImpl.class);
+	
 	private LancamentoRepository repository;
 	
 	public LancamentoServiceImpl(LancamentoRepository repository) {
@@ -30,6 +35,9 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	@Transactional
 	public Lancamento salvar(Lancamento lancamento) {
+		
+		LOGGER.info("#### Método: LancamentoServiceImpl.buscar(), status: INICIO, idUsuario: "+ lancamento.getUsuario()+", valor: "+ lancamento.getValor());
+		
 		validar(lancamento);
 		lancamento.setStatus(StatusLancamento.PENDENTE);
 		return repository.save(lancamento);
@@ -38,6 +46,9 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	@Transactional
 	public Lancamento atualizar(Lancamento lancamento) {
+		
+		LOGGER.info("#### Método: LancamentoServiceImpl.atualizar(), status: INICIO, id: "+ lancamento.getId());
+		
 		Objects.requireNonNull(lancamento.getId());
 		validar(lancamento);
 		//lancamento.setStatus(StatusLancamento.PENDENTE);
@@ -47,6 +58,8 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	@Transactional
 	public void deletar(Lancamento lancamento) {
+		LOGGER.info("#### Método: LancamentoServiceImpl.deletar(), status: INICIO, id: "+ lancamento.getId());
+		
 		Objects.requireNonNull(lancamento.getId());
 		repository.delete(lancamento);
 		
@@ -55,6 +68,9 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<Lancamento> buscar(Lancamento lancamentoFiltro) {
+		
+		LOGGER.info("#### Método: LancamentoServiceImpl.buscar(), status: INICIO, idUsuario: "+ lancamentoFiltro.getUsuario());
+		
 		Example  example = Example.of(lancamentoFiltro,
 				ExampleMatcher.matching()
 				.withIgnoreCase()
@@ -65,6 +81,9 @@ public class LancamentoServiceImpl implements LancamentoService {
 
 	@Override
 	public void atualizarStatus(Lancamento lancamento, StatusLancamento status) {
+		
+		LOGGER.info("#### Método: LancamentoServiceImpl.atualizarStatus(), status: INICIO, novoStatus: "+ status);
+		
 		lancamento.setStatus(status);
 		atualizar(lancamento);
 		
@@ -96,12 +115,17 @@ public class LancamentoServiceImpl implements LancamentoService {
 	@Override
 	public Optional<Lancamento> obterPorId(Long id) {
 		
+		LOGGER.info("#### Método: LancamentoServiceImpl.obterPorId(), status: INICIO, id: "+ id);
+		
 		return repository.findById(id);
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public BigDecimal obterSaldoPorUsuario(Long id) {
+		
+		LOGGER.info("#### Método: LancamentoServiceImpl.obterSaldoPorUsuario(), status: INICIO, id: "+ id);
+		
 		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
 		BigDecimal despesas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
 		
