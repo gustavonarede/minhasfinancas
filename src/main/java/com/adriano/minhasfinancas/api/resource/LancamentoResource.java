@@ -101,45 +101,70 @@ public class LancamentoResource {
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity atualizar(@PathVariable("id") Long id, @RequestBody LancamentoDTO dto) {
-		return service.obterPorId(id).map(entity -> {
-			try {
-				Lancamento lancamento = converter(dto);
-				lancamento.setId(entity.getId());
-				service.atualizar(lancamento);
-				return ResponseEntity.ok(lancamento);
-			} catch (RegraNegocioException e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
-		}).orElseGet(() -> new ResponseEntity("Lancamento não encontrado na base de Dados", HttpStatus.BAD_REQUEST));
+	public ResponseEntity<Object> atualizar(@PathVariable("id") Long id, @RequestBody LancamentoDTO dto) {
+		
+		LOGGER.info("#### Método: LancamentoResource.atualizar(), status: INICIO, idLancamento: "+ id);
+		
+		try {
+			
+			Lancamento atualLancamento = service.obterPorId(id).orElseThrow(() -> new RegraNegocioException("Lancamento não encontrado na base de Dados"));
+			
+			Lancamento novoLancamento = converter(dto);
+			novoLancamento.setId(atualLancamento.getId());
+			
+			novoLancamento = service.atualizar(novoLancamento);
+			
+			LOGGER.info("#### Método: LancamentoResource.atualizar(), status: SUCESSO, idLancamentoAtualizado: "+ id);
+			
+			return ResponseEntity.ok(novoLancamento);
+		} catch (RegraNegocioException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@PutMapping("{id}/atualiza-status")
 	public ResponseEntity atualizarStatus(@PathVariable("id") Long id, @RequestBody AtualizaStatusDTO dto) {
-		return service.obterPorId(id).map(entity -> {
+		
+		LOGGER.info("#### Método: LancamentoResource.atualizarStatus(), status: INICIO, idLancamento: "+ id);
+		
+		try {
+			
 			StatusLancamento statusSelecionado = StatusLancamento.valueOf(dto.getStatus());
-			if (statusSelecionado == null) {
-				return ResponseEntity.badRequest()
-						.body("Não foi possível atualiza o status do lancamento, envie um status válido");
-			}
-			try {
-				entity.setStatus(statusSelecionado);
-				service.atualizar(entity);
-				return ResponseEntity.ok(entity);
-			} catch (RegraNegocioException e) {
-				return ResponseEntity.badRequest().body(e.getMessage());
-			}
-		}).orElseGet(() -> new ResponseEntity("Lançamento não encontrado na base de dados", HttpStatus.BAD_REQUEST));
+			
+			if (statusSelecionado == null) throw new RegraNegocioException("Não foi possível atualiza o status do lancamento, envie um status válido");
+			
+			Lancamento lancamento = service.obterPorId(id).orElseThrow(() -> new RegraNegocioException("Lancamento não encontrado na base de Dados"));
+			
+			lancamento.setStatus(statusSelecionado);
+			
+			service.atualizar(lancamento);
+			
+			LOGGER.info("#### Método: LancamentoResource.atualizarStatus(), status: SUCESSO, novoStatus: "+ statusSelecionado);
+			
+			return ResponseEntity.ok(lancamento);
+		} catch (RegraNegocioException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 
 	}
 
 	@DeleteMapping("{id}")
 	public ResponseEntity deletar(@PathVariable("id") Long id) {
-		return service.obterPorId(id).map(entidade -> {
-			service.deletar(entidade);
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}).orElseGet(() -> new ResponseEntity("Lancamento não encontrado na base de Dados", HttpStatus.BAD_REQUEST));
-
+		
+		LOGGER.info("#### Método: LancamentoResource.deletar(), status: INICIO, idLancamento: "+ id);
+		
+		try {
+			
+			Lancamento lancamento = service.obterPorId(id).orElseThrow(() -> new RegraNegocioException("Lancamento não encontrado na base de Dados"));
+			
+			service.deletar(lancamento);
+			
+			LOGGER.info("#### Método: LancamentoResource.deletar(), status: SUCESSO");
+			
+			return ResponseEntity.noContent().build();
+		} catch (RegraNegocioException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	private LancamentoDTO converter(Lancamento lancamento) {
